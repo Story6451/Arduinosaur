@@ -1,4 +1,10 @@
 #include <Servo.h>
+#include <Stepper.h>
+
+//stepper motor variables
+const int steps = 2048;
+
+Stepper motor(steps, 8, 9, 10, 11);
 
 //LDR variables
 #define LDR A0
@@ -21,14 +27,21 @@ const int echo = 10;
 long duration = 0;
 float distance = 0;
 
+//wing behaviours
+const int flapDelay = 1000;
+const int flapAngle = 45;
+
+//servo definitions
 Servo leftWing;
 Servo rightWing;
-
-bool hunting = false;
+Servo neck;
+Servo Jaw;
 
 void setup() 
 {
   Serial.begin(9600);
+
+  motor.setSpeed(100);
 
   //7 segment pin initialisation
   pinMode(a, OUTPUT);
@@ -44,10 +57,10 @@ void setup()
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
 
-
   Blink();
 }
 
+//opens the eyes
 void EyesOpen()
 {
   digitalWrite(a, HIGH);
@@ -60,6 +73,7 @@ void EyesOpen()
   digitalWrite(dp, LOW);
 }
 
+//closes the eyes
 void EyesClosed()
 {
   digitalWrite(a, LOW);
@@ -82,11 +96,39 @@ void Blink()
   EyesOpen();
 }
 
+//goes through the sleep protocol
 void Sleep()
 {
   leftWing.write(0);
   rightWing.write(0);
   EyesClosed();
+}
+
+//moves the dino back slightly
+void MoveBack()
+{
+  leftWing.write(0);
+  rightWing.write(0);
+  motor.step(-steps);
+}
+
+//moves the wings as well as the motor to control the dino
+long lastFlap = 0;
+void MoveForward()
+{
+  if ((millis() - lastFlap) > 2*flapDelay)
+  {
+    leftWing.write(0);
+    rightWing.write(0);
+  }
+  else if ((millis() - lastFlap) > flapDelay)
+  {
+    leftWing.write(flapAngle);
+    rightWing.write(flapAngle);
+  }
+  motor.step(steps);
+
+  lastFlap = millis();
 }
 
 void loop() 
@@ -100,10 +142,18 @@ void loop()
   duration = pulseIn(echo, HIGH);
   distance = duration * 0.034 / 2;
 
-  if (distance < 50)
+  if ((distance <= 50) && (distance > 8))
   {
-    hunting = true;
+    EyesOpen();
+    MoveForward();
   }
+  else if (distance <= 5)
+  {
+    EyesOpen();
+    MoveBack();
+  }
+
+
   LDRValue = analogRead(LDR);
   if (LDRValue < 300)
   {
