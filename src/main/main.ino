@@ -58,6 +58,8 @@ void setup()
   pinMode(echo, INPUT);
 
   Blink();
+
+  attachInterrupt(digitalPinToInterrupt(trig), ISR_ObjectDetected, RISING);
 }
 
 //opens the eyes
@@ -131,6 +133,21 @@ void MoveForward()
   lastFlap = millis();
 }
 
+void ISR_ObjectDetected()
+{
+  duration = pulseIn(echo, HIGH);
+  distance = duration * 0.034 / 2;
+  EyesOpen();
+  if ((distance <= 50) && (distance > 8))
+  {
+    MoveForward();
+  }
+  else if (distance <= 5)
+  {
+    MoveBack();
+  }
+}
+
 void loop() 
 {
   //uses ultrasound to get distance
@@ -139,19 +156,7 @@ void loop()
   digitalWrite(trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
-  duration = pulseIn(echo, HIGH);
-  distance = duration * 0.034 / 2;
 
-  if ((distance <= 50) && (distance > 8))
-  {
-    EyesOpen();
-    MoveForward();
-  }
-  else if (distance <= 5)
-  {
-    EyesOpen();
-    MoveBack();
-  }
 
 
   LDRValue = analogRead(LDR);
