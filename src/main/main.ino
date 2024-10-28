@@ -9,17 +9,18 @@ Stepper motor(steps, 8, 9, 10, 11);
 //LDR variables
 #define LDR A0
 int LDRValue = 0;
+int minLDRValue = 2000;
+int maxLDRValue = 0;
 
 //7 segment display led variables (corresponds to the parts of a 7 semgent):
 //https://microcontrollerslab.com/7-segment-display-pinout-working-examples-applications/
-const int a = 0;
-const int b = 1;
-const int c = 2;
-const int d = 3;
-const int e = 4;
-const int f = 5;
-const int g = 6;
-const int dp = 7;
+const int a = 2;
+const int b = 3;
+const int c = 4;
+const int d = 5;
+const int e = 6;
+const int f = 7;
+const int g = 8;
 
 //ultra sonic distance sensor variables
 const int trig = 9;
@@ -51,7 +52,7 @@ void setup()
   pinMode(e, OUTPUT);
   pinMode(f, OUTPUT);
   pinMode(g, OUTPUT);
-  pinMode(dp, OUTPUT);
+
 
   //distance sensor
   pinMode(trig, OUTPUT);
@@ -72,7 +73,7 @@ void EyesOpen()
   digitalWrite(e, HIGH);
   digitalWrite(f, HIGH);
   digitalWrite(g, LOW);
-  digitalWrite(dp, LOW);
+
 }
 
 //closes the eyes
@@ -85,16 +86,16 @@ void EyesClosed()
   digitalWrite(e, LOW);
   digitalWrite(f, LOW);
   digitalWrite(g, HIGH);
-  digitalWrite(dp, LOW);
+
 }
 
 //runs through a blinking routine for the 7 segment
 void Blink()
 {
   EyesOpen();
-  delay(200);
+  delay(500);
   EyesClosed();
-  delay(200);
+  delay(500);
   EyesOpen();
 }
 
@@ -104,6 +105,12 @@ void Sleep()
   leftWing.write(0);
   rightWing.write(0);
   EyesClosed();
+}
+
+void Wake()
+{
+  Blink();
+  EyesOpen();
 }
 
 //moves the dino back slightly
@@ -150,6 +157,8 @@ void ISR_ObjectDetected()
 
 void loop() 
 {
+
+  
   //uses ultrasound to get distance
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
@@ -157,11 +166,25 @@ void loop()
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
 
-
+  
 
   LDRValue = analogRead(LDR);
-  if (LDRValue < 300)
+
+  if (LDRValue > maxLDRValue)
+  {
+    maxLDRValue = LDRValue;
+  }
+  if (LDRValue < minLDRValue)
+  {
+    minLDRValue = LDRValue;
+  }
+  Serial.println(LDRValue);
+  if (LDRValue > (minLDRValue + 0.8*maxLDRValue))
   {
     Sleep();
+  }
+  else
+  {
+    Wake();
   }
 }
