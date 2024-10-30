@@ -106,6 +106,29 @@ void EyesClosed()
 
 }
 
+//conveys angry mode
+void EyesAngry()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, LOW);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, HIGH);
+  digitalWrite(f, LOW);
+  digitalWrite(g, HIGH);
+}
+
+//conveys passive mode
+void EyesPassive()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, HIGH);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, LOW);
+}
 //runs through a blinking routine for the 7 segment
 void Blink()
 {
@@ -195,11 +218,19 @@ void loop()
 
   if (LDRValue < 100)
   {
-    sleeping = true;
+    if (distance > 50)
+    {
+      sleeping = true;
+    }
+    else if(distance < 50)
+    {
+      EyesAngry();
+      sleeping = false;
+    }
   }
   else
   {
-    sleeping = false;
+    EyesPassive();
   }
 
   //detects if there was a change between sleeping and being awake
