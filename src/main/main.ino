@@ -1,36 +1,40 @@
 #include <Servo.h>
-#include <Stepper.h>
+#include "AccelStepper.h"
 
 //stepper motor variables
 const int steps = 2048;
 
-Stepper motor(steps, 8, 9, 10, 11);
+#define MotorInterface 8
+
+AccelStepper motor(MotorInterface, 9, 11, 10, 12);
 
 //LDR variables
-#define LDR A0
+#define LDR A2
 int LDRValue = 0;
-int minLDRValue = 2000;
-int maxLDRValue = 0;
+
+bool sleeping = false;
+bool previousState = false;
 
 //7 segment display led variables (corresponds to the parts of a 7 semgent):
 //https://microcontrollerslab.com/7-segment-display-pinout-working-examples-applications/
-const int a = 2;
-const int b = 3;
-const int c = 4;
-const int d = 5;
-const int e = 6;
-const int f = 7;
-const int g = 8;
+const int a = A0;
+const int b = A1;
+const int c = 2;
+const int d = 3;
+const int e = 4;
+const int f = 5;
+const int g = 6;
 
 //ultra sonic distance sensor variables
-const int trig = 9;
-const int echo = 10;
+const int trig = 7;
+const int echo = 8;
 long duration = 0;
 float distance = 0;
 
 //wing behaviours
 const int flapDelay = 1000;
 const int flapAngle = 45;
+long lastFlap = 0;
 
 //servo definitions
 Servo leftWing;
@@ -42,7 +46,7 @@ void setup()
 {
   Serial.begin(9600);
 
-  motor.setSpeed(100);
+  motor.setMaxSpeed(1000);
 
   //7 segment pin initialisation
   pinMode(a, OUTPUT);
@@ -53,19 +57,24 @@ void setup()
   pinMode(f, OUTPUT);
   pinMode(g, OUTPUT);
 
-
   //distance sensor
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
 
   Blink();
-
-  attachInterrupt(digitalPinToInterrupt(trig), ISR_ObjectDetected, RISING);
 }
 
 //opens the eyes
 void EyesOpen()
 {
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, LOW);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+  delay(50);
   digitalWrite(a, HIGH);
   digitalWrite(b, HIGH);
   digitalWrite(c, HIGH);
@@ -79,6 +88,14 @@ void EyesOpen()
 //closes the eyes
 void EyesClosed()
 {
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, LOW);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+  delay(50);
   digitalWrite(a, LOW);
   digitalWrite(b, LOW);
   digitalWrite(c, LOW);
@@ -93,9 +110,13 @@ void EyesClosed()
 void Blink()
 {
   EyesOpen();
-  delay(500);
+  delay(300);
   EyesClosed();
-  delay(500);
+  delay(300);
+  EyesOpen();
+  delay(300);
+  EyesClosed();
+  delay(300);
   EyesOpen();
 }
 
@@ -107,22 +128,16 @@ void Sleep()
   EyesClosed();
 }
 
-void Wake()
-{
-  Blink();
-  EyesOpen();
-}
-
 //moves the dino back slightly
 void MoveBack()
 {
   leftWing.write(0);
   rightWing.write(0);
-  motor.step(-steps);
+  motor.setSpeed(-1000);
+  motor.runSpeed();
 }
 
 //moves the wings as well as the motor to control the dino
-long lastFlap = 0;
 void MoveForward()
 {
   if ((millis() - lastFlap) > 2*flapDelay)
@@ -135,16 +150,30 @@ void MoveForward()
     leftWing.write(flapAngle);
     rightWing.write(flapAngle);
   }
-  motor.step(steps);
+  motor.setSpeed(1000);
+  motor.runSpeed();
 
   lastFlap = millis();
 }
 
-void ISR_ObjectDetected()
+//stops the stepper motor rotation
+void Stop()
 {
+  motor.setSpeed(0);
+  motor.runSpeed();
+}
+
+void loop() 
+{
+  //uses ultrasound to get distance
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
   duration = pulseIn(echo, HIGH);
   distance = duration * 0.034 / 2;
-  EyesOpen();
+
   if ((distance <= 50) && (distance > 8))
   {
     MoveForward();
@@ -153,38 +182,39 @@ void ISR_ObjectDetected()
   {
     MoveBack();
   }
-}
+  else
+  {
+    Stop();
+  }
 
-void loop() 
-{
-
-  
-  //uses ultrasound to get distance
-  digitalWrite(trig, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trig, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-
-  
+  Serial.println(distance);
 
   LDRValue = analogRead(LDR);
 
-  if (LDRValue > maxLDRValue)
+  //Serial.println(LDRValue);
+
+  if (LDRValue < 100)
   {
-    maxLDRValue = LDRValue;
-  }
-  if (LDRValue < minLDRValue)
-  {
-    minLDRValue = LDRValue;
-  }
-  Serial.println(LDRValue);
-  if (LDRValue > (minLDRValue + 0.8*maxLDRValue))
-  {
-    Sleep();
+    sleeping = true;
   }
   else
   {
-    Wake();
+    sleeping = false;
   }
+
+  //detects if there was a change between sleeping and being awake
+  if (sleeping != previousState)
+  {
+    if (sleeping == true)
+    {
+      EyesClosed();
+    }
+    else if (sleeping == false)
+    {
+      EyesOpen();
+    }
+  }
+
+  previousState = sleeping;
+
 }
