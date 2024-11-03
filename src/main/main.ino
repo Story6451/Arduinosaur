@@ -211,6 +211,7 @@ void loop()
 
   LDRValue = analogRead(LDR);
 
+  //for debugging
   //Serial.println(LDRValue);
 
   if (LDRValue < 100)
