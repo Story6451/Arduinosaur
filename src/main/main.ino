@@ -225,9 +225,12 @@ void loop()
   LDRValue = analogRead(LDR);
 
   //for debugging
-  //Serial.println(LDRValue);
+  
+  Serial.print(LDRValue);
+  Serial.print(" ");
+  Serial.println(distance);
 
-  if (LDRValue < 100)
+  if (LDRValue < 300)
   {
     if (distance > 50)
     {
@@ -242,6 +245,7 @@ void loop()
   else
   {
     EyesPassive();
+    sleeping = false;
   }
 
   if ((distance <= 50) && (distance > 8))
@@ -254,13 +258,13 @@ void loop()
   }
   else if ((distance <= 8) && (distance > 5))
   {
-    if (LDRValue < 100)
+    if (LDRValue < 300)
     {
-      Bite();
+      //Bite();
     }
     else
     {
-      Inspect();
+      //Inspect();
     }
   }
   else
@@ -268,7 +272,6 @@ void loop()
     Stop();
   }
 
-  Serial.println(distance);
 
   //detects if there was a change between sleeping and being awake
   if (sleeping != previousState)
