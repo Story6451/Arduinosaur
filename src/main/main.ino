@@ -1,12 +1,9 @@
 #include <Servo.h>
 #include "AccelStepper.h"
 
-//stepper motor variables
-const int steps = 2048;
+const int MOTOR_INTERFACE = 8;
 
-#define MotorInterface 8
-
-AccelStepper motor(MotorInterface, 9, 11, 10, 12);
+AccelStepper motor(MOTOR_INTERFACE, 9, 11, 10, 12);
 
 //LDR variables
 #define LDR A2
@@ -17,23 +14,23 @@ bool previousState = false;
 
 //7 segment display led variables (corresponds to the parts of a 7 semgent):
 //https://microcontrollerslab.com/7-segment-display-pinout-working-examples-applications/
-const int a = A0;
-const int b = A1;
-const int c = 2;
-const int d = 3;
-const int e = 4;
-const int f = 5;
-const int g = 6;
+const int A = A0;
+const int B = A1;
+const int C = 2;
+const int D = 3;
+const int E = 4;
+const int F = 5;
+const int G = 6;
 
 //ultra sonic distance sensor variables
-const int trig = 7;
-const int echo = 8;
+const int TRIG = 7;
+const int ECHO = 8;
 long duration = 0;
 float distance = 0;
 
 //wing behaviours
-const int flapDelay = 1000;
-const int flapAngle = 45;
+const int FLAP_DELAY = 1000;
+const int FLAP_ANGLE = 45;
 long lastFlap = 0;
 
 //servo definitions
@@ -41,11 +38,14 @@ Servo leftWing;
 Servo rightWing;
 Servo neck;
 Servo jaw;
+<<<<<<< HEAD
 
 const int LEFT_WING_PIN = A3;
 const int RIGHT_WING_PIN = A4;
 const int NECK_PIN = A5;
 const int JAW_PIN = 13;
+=======
+>>>>>>> 289d5d4487cb9c2a2ec1305bc02b30f1e5b8a14c
 
 void setup() 
 {
@@ -54,17 +54,17 @@ void setup()
   motor.setMaxSpeed(1000);
 
   //7 segment pin initialisation
-  pinMode(a, OUTPUT);
-  pinMode(b, OUTPUT);
-  pinMode(c, OUTPUT);
-  pinMode(d, OUTPUT);
-  pinMode(e, OUTPUT);
-  pinMode(f, OUTPUT);
-  pinMode(g, OUTPUT);
+  pinMode(A, OUTPUT);
+  pinMode(B, OUTPUT);
+  pinMode(C, OUTPUT);
+  pinMode(D, OUTPUT);
+  pinMode(E, OUTPUT);
+  pinMode(F, OUTPUT);
+  pinMode(G, OUTPUT);
 
   //distance sensor
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT);
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
 
   leftWing.attach(LEFT_WING_PIN);
   rightWing.attach(RIGHT_WING_PIN);
@@ -77,67 +77,67 @@ void setup()
 //opens the eyes
 void EyesOpen()
 {
-  digitalWrite(a, HIGH);
-  digitalWrite(b, HIGH);
-  digitalWrite(c, LOW);
-  digitalWrite(d, LOW);
-  digitalWrite(e, LOW);
-  digitalWrite(f, HIGH);
-  digitalWrite(g, HIGH);
+  digitalWrite(A, HIGH);
+  digitalWrite(B, HIGH);
+  digitalWrite(C, LOW);
+  digitalWrite(D, LOW);
+  digitalWrite(E, LOW);
+  digitalWrite(F, HIGH);
+  digitalWrite(G, HIGH);
   delay(50);
-  digitalWrite(a, HIGH);
-  digitalWrite(b, HIGH);
-  digitalWrite(c, HIGH);
-  digitalWrite(d, HIGH);
-  digitalWrite(e, HIGH);
-  digitalWrite(f, HIGH);
-  digitalWrite(g, LOW);
+  digitalWrite(A, HIGH);
+  digitalWrite(B, HIGH);
+  digitalWrite(C, HIGH);
+  digitalWrite(D, HIGH);
+  digitalWrite(E, HIGH);
+  digitalWrite(F, HIGH);
+  digitalWrite(G, LOW);
 
 }
 
 //closes the eyes
 void EyesClosed()
 {
-  digitalWrite(a, HIGH);
-  digitalWrite(b, HIGH);
-  digitalWrite(c, LOW);
-  digitalWrite(d, LOW);
-  digitalWrite(e, LOW);
-  digitalWrite(f, HIGH);
-  digitalWrite(g, HIGH);
+  digitalWrite(A, HIGH);
+  digitalWrite(B, HIGH);
+  digitalWrite(C, LOW);
+  digitalWrite(D, LOW);
+  digitalWrite(E, LOW);
+  digitalWrite(F, HIGH);
+  digitalWrite(G, HIGH);
   delay(50);
-  digitalWrite(a, LOW);
-  digitalWrite(b, LOW);
-  digitalWrite(c, LOW);
-  digitalWrite(d, LOW);
-  digitalWrite(e, LOW);
-  digitalWrite(f, LOW);
-  digitalWrite(g, HIGH);
+  digitalWrite(A, LOW);
+  digitalWrite(B, LOW);
+  digitalWrite(C, LOW);
+  digitalWrite(D, LOW);
+  digitalWrite(E, LOW);
+  digitalWrite(F, LOW);
+  digitalWrite(G, HIGH);
 
 }
 
 //conveys angry mode
 void EyesAngry()
 {
-  digitalWrite(a, HIGH);
-  digitalWrite(b, LOW);
-  digitalWrite(c, HIGH);
-  digitalWrite(d, HIGH);
-  digitalWrite(e, HIGH);
-  digitalWrite(f, LOW);
-  digitalWrite(g, HIGH);
+  digitalWrite(A, HIGH);
+  digitalWrite(B, LOW);
+  digitalWrite(C, HIGH);
+  digitalWrite(D, HIGH);
+  digitalWrite(E, HIGH);
+  digitalWrite(F, LOW);
+  digitalWrite(G, HIGH);
 }
 
 //conveys passive mode
 void EyesPassive()
 {
-  digitalWrite(a, HIGH);
-  digitalWrite(b, HIGH);
-  digitalWrite(c, HIGH);
-  digitalWrite(d, HIGH);
-  digitalWrite(e, HIGH);
-  digitalWrite(f, HIGH);
-  digitalWrite(g, LOW);
+  digitalWrite(A, HIGH);
+  digitalWrite(B, HIGH);
+  digitalWrite(C, HIGH);
+  digitalWrite(D, HIGH);
+  digitalWrite(E, HIGH);
+  digitalWrite(F, HIGH);
+  digitalWrite(G, LOW);
 }
 //runs through a blinking routine for the 7 segment
 void Blink()
@@ -173,15 +173,15 @@ void MoveBack()
 //moves the wings as well as the motor to control the dino
 void MoveForward()
 {
-  if ((millis() - lastFlap) > 2*flapDelay)
+  if ((millis() - lastFlap) > (2 * FLAP_DELAY))
   {
     leftWing.write(0);
     rightWing.write(0);
   }
-  else if ((millis() - lastFlap) > flapDelay)
+  else if ((millis() - lastFlap) > FLAP_DELAY)
   {
-    leftWing.write(flapAngle);
-    rightWing.write(flapAngle);
+    leftWing.write(FLAP_ANGLE);
+    rightWing.write(FLAP_ANGLE);
   }
   motor.setSpeed(1000);
   motor.runSpeed();
@@ -216,15 +216,20 @@ void Bite()
 void loop() 
 {
   //uses ultrasound to get distance
-  digitalWrite(trig, LOW);
+  digitalWrite(TRIG, LOW);
   delayMicroseconds(2);
-  digitalWrite(trig, HIGH);
+  digitalWrite(TRIG, HIGH);
   delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-  duration = pulseIn(echo, HIGH);
+  digitalWrite(TRIG, LOW);
+  duration = pulseIn(ECHO, HIGH);
   distance = duration * 0.034 / 2;
 
   LDRValue = analogRead(LDR);
+<<<<<<< HEAD
+=======
+
+  //for debugging
+>>>>>>> 289d5d4487cb9c2a2ec1305bc02b30f1e5b8a14c
   //Serial.println(LDRValue);
 
   if (LDRValue < 100)
