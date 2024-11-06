@@ -38,14 +38,12 @@ Servo leftWing;
 Servo rightWing;
 Servo neck;
 Servo jaw;
-<<<<<<< HEAD
 
 const int LEFT_WING_PIN = A3;
 const int RIGHT_WING_PIN = A4;
 const int NECK_PIN = A5;
 const int JAW_PIN = 13;
-=======
->>>>>>> 289d5d4487cb9c2a2ec1305bc02b30f1e5b8a14c
+
 
 void setup() 
 {
@@ -225,11 +223,8 @@ void loop()
   distance = duration * 0.034 / 2;
 
   LDRValue = analogRead(LDR);
-<<<<<<< HEAD
-=======
 
   //for debugging
->>>>>>> 289d5d4487cb9c2a2ec1305bc02b30f1e5b8a14c
   //Serial.println(LDRValue);
 
   if (LDRValue < 100)
