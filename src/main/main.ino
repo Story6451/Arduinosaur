@@ -4,7 +4,7 @@
 const int MOTOR_INTERFACE = 8;
 
 AccelStepper motor(MOTOR_INTERFACE, 9, 11, 10, 12);
-
+const int MAX_SPEED = 1000;
 //LDR variables
 #define LDR A2
 int LDRValue = 0;
@@ -49,7 +49,7 @@ void setup()
 {
   Serial.begin(9600);
 
-  motor.setMaxSpeed(1000);
+  motor.setMaxSpeed(MAX_SPEED);
 
   //7 segment pin initialisation
   pinMode(A, OUTPUT);
@@ -164,27 +164,30 @@ void MoveBack()
 {
   leftWing.write(0);
   rightWing.write(0);
-  motor.setSpeed(-1000);
+  motor.setSpeed(-MAX_SPEED);
   motor.runSpeed();
 }
 
 //moves the wings as well as the motor to control the dino
 void MoveForward()
 {
-  if ((millis() - lastFlap) > (2 * FLAP_DELAY))
+  if ((millis() - lastFlap) > (FLAP_DELAY))
   {
     leftWing.write(0);
     rightWing.write(0);
+    Serial.print("LOW");
+    lastFlap = millis();
   }
-  else if ((millis() - lastFlap) > FLAP_DELAY)
+  else if ((millis() - lastFlap) > (0.5 * FLAP_DELAY))
   {
     leftWing.write(FLAP_ANGLE);
     rightWing.write(FLAP_ANGLE);
+    Serial.print("HIGH");
   }
-  motor.setSpeed(1000);
+  motor.setSpeed(MAX_SPEED);
   motor.runSpeed();
 
-  lastFlap = millis();
+
 }
 
 //stops the stepper motor rotation
@@ -226,10 +229,12 @@ void loop()
 
   //for debugging
   
+  Serial.print(lastFlap);
+  Serial.print(" ");
   Serial.print(LDRValue);
   Serial.print(" ");
   Serial.println(distance);
-
+  
   if (LDRValue < 300)
   {
     if (distance > 50)
