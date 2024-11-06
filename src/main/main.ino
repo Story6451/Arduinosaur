@@ -40,7 +40,12 @@ long lastFlap = 0;
 Servo leftWing;
 Servo rightWing;
 Servo neck;
-Servo Jaw;
+Servo jaw;
+
+const int LEFT_WING_PIN = A3;
+const int RIGHT_WING_PIN = A4;
+const int NECK_PIN = A5;
+const int JAW_PIN = 13;
 
 void setup() 
 {
@@ -61,7 +66,12 @@ void setup()
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT);
 
+  leftWing.attach(LEFT_WING_PIN);
+  rightWing.attach(RIGHT_WING_PIN);
+  neck.attach(NECK_PIN);
+  jaw.attach(JAW_PIN);
   Blink();
+
 }
 
 //opens the eyes
@@ -186,6 +196,23 @@ void Stop()
   motor.runSpeed();
 }
 
+void Inspect()
+{
+  neck.write(45);
+  delay(2000);
+  neck.write(0);
+}
+
+void Bite()
+{
+  neck.write(45);
+  delay(500);
+  jaw.write(45);
+  delay(1000);
+  jaw.write(0);
+  neck.write(0);
+}
+
 void loop() 
 {
   //uses ultrasound to get distance
@@ -197,23 +224,7 @@ void loop()
   duration = pulseIn(echo, HIGH);
   distance = duration * 0.034 / 2;
 
-  if ((distance <= 50) && (distance > 8))
-  {
-    MoveForward();
-  }
-  else if (distance <= 5)
-  {
-    MoveBack();
-  }
-  else
-  {
-    Stop();
-  }
-
-  Serial.println(distance);
-
   LDRValue = analogRead(LDR);
-
   //Serial.println(LDRValue);
 
   if (LDRValue < 100)
@@ -232,6 +243,32 @@ void loop()
   {
     EyesPassive();
   }
+
+  if ((distance <= 50) && (distance > 8))
+  {
+    MoveForward();
+  }
+  else if (distance <= 5)
+  {
+    MoveBack();
+  }
+  else if ((distance <= 8) && (distance > 5))
+  {
+    if (LDRValue < 100)
+    {
+      Bite();
+    }
+    else
+    {
+      Inspect();
+    }
+  }
+  else
+  {
+    Stop();
+  }
+
+  Serial.println(distance);
 
   //detects if there was a change between sleeping and being awake
   if (sleeping != previousState)
