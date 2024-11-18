@@ -4,7 +4,7 @@
 const int MOTOR_INTERFACE = 8;
 
 AccelStepper motor(MOTOR_INTERFACE, 9, 11, 10, 12);
-const int MAX_SPEED = 1000;
+const int MAX_SPEED = 5000;
 //LDR variables
 #define LDR A2
 int LDRValue = 0;
@@ -265,11 +265,11 @@ void loop()
   {
     if (LDRValue < 300)
     {
-      //Bite();
+      Bite();
     }
     else
     {
-      //Inspect();
+      Inspect();
     }
   }
   else
