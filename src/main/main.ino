@@ -21,6 +21,8 @@ const int D = 3;
 const int E = 4;
 const int F = 5;
 const int G = 6;
+long lastBlink = 0;
+
 
 //ultra sonic distance sensor variables
 const int TRIG = 7;
@@ -36,13 +38,11 @@ long lastFlap = 0;
 //servo definitions
 Servo leftWing;
 Servo rightWing;
-Servo neck;
 Servo jaw;
 
 const int LEFT_WING_PIN = A3;
 const int RIGHT_WING_PIN = A4;
-const int NECK_PIN = A5;
-const int JAW_PIN = 13;
+const int JAW_PIN = A5;
 
 
 void setup() 
@@ -66,7 +66,6 @@ void setup()
 
   leftWing.attach(LEFT_WING_PIN);
   rightWing.attach(RIGHT_WING_PIN);
-  neck.attach(NECK_PIN);
   jaw.attach(JAW_PIN);
   Blink();
 
@@ -197,21 +196,22 @@ void Stop()
   motor.runSpeed();
 }
 
+/*
 void Inspect()
 {
   neck.write(45);
   delay(2000);
   neck.write(0);
 }
-
+*/
 void Bite()
 {
-  neck.write(45);
+  //neck.write(45);
   delay(500);
   jaw.write(45);
   delay(1000);
   jaw.write(0);
-  neck.write(0);
+  //neck.write(0);
 }
 
 void loop() 
@@ -251,9 +251,18 @@ void loop()
   {
     EyesPassive();
     sleeping = false;
+    if (distance > 50)
+    {
+      long timer = millis();
+      if ((timer - lastBlink) > 3000)
+      {
+        Blink();
+        lastBlink = millis();
+      }
+    }
   }
 
-  if ((distance <= 50) && (distance > 8))
+  if ((distance <= 50) && (distance > 15))
   {
     MoveForward();
   }
@@ -261,7 +270,7 @@ void loop()
   {
     MoveBack();
   }
-  else if ((distance <= 8) && (distance > 5))
+  else if ((distance <= 10) && (distance > 5))
   {
     if (LDRValue < 300)
     {
@@ -269,7 +278,7 @@ void loop()
     }
     else
     {
-      Inspect();
+      //Inspect();
     }
   }
   else
