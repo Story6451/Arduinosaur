@@ -68,7 +68,8 @@ void setup()
   rightWing.attach(RIGHT_WING_PIN);
   jaw.attach(JAW_PIN);
   Blink();
-
+  Blink();
+  
 }
 
 //opens the eyes
@@ -144,10 +145,6 @@ void Blink()
   EyesClosed();
   delay(300);
   EyesOpen();
-  delay(300);
-  EyesClosed();
-  delay(300);
-  EyesOpen();
 }
 
 //goes through the sleep protocol
@@ -207,9 +204,8 @@ void Inspect()
 void Bite()
 {
   //neck.write(45);
+  jaw.write(90);
   delay(500);
-  jaw.write(45);
-  delay(1000);
   jaw.write(0);
   //neck.write(0);
 }
@@ -237,11 +233,11 @@ void loop()
   
   if (LDRValue < 300)
   {
-    if (distance > 50)
+    if (distance > 30)
     {
       sleeping = true;
     }
-    else if(distance < 50)
+    else
     {
       EyesAngry();
       sleeping = false;
@@ -251,7 +247,7 @@ void loop()
   {
     EyesPassive();
     sleeping = false;
-    if (distance > 50)
+    if (distance > 100)
     {
       long timer = millis();
       if ((timer - lastBlink) > 3000)
@@ -262,7 +258,7 @@ void loop()
     }
   }
 
-  if ((distance <= 50) && (distance > 15))
+  if ((distance <= 100) && (distance > 20))
   {
     MoveForward();
   }
@@ -274,6 +270,7 @@ void loop()
   {
     if (LDRValue < 300)
     {
+      Serial.print("Biting!!");
       Bite();
     }
     else
