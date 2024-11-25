@@ -33,6 +33,7 @@ float distance = 0;
 //wing behaviours
 const int FLAP_DELAY = 1000;
 const int FLAP_ANGLE = 45;
+const int BITE_ANGLE = 20;
 long lastFlap = 0;
 
 //servo definitions
@@ -42,7 +43,7 @@ Servo jaw;
 
 const int LEFT_WING_PIN = A3;
 const int RIGHT_WING_PIN = A4;
-const int JAW_PIN = A5;
+const int JAW_PIN = 13;
 
 
 void setup() 
@@ -67,6 +68,7 @@ void setup()
   leftWing.attach(LEFT_WING_PIN);
   rightWing.attach(RIGHT_WING_PIN);
   jaw.attach(JAW_PIN);
+  jaw.write(BITE_ANGLE);
   Blink();
   Blink();
   
@@ -204,9 +206,10 @@ void Inspect()
 void Bite()
 {
   //neck.write(45);
-  jaw.write(90);
-  delay(500);
   jaw.write(0);
+  delay(500);
+  jaw.write(BITE_ANGLE);
+  delay(500);
   //neck.write(0);
 }
 
