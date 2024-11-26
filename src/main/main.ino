@@ -71,6 +71,10 @@ void setup()
   jaw.attach(JAW_PIN);
   jaw.write(BITE_ANGLE);
 
+  leftWing.write(0);
+  rightWing.write(0);
+  delay(5000);
+
   //wake up animations
   Blink();
   Blink();
@@ -174,14 +178,14 @@ void MoveForward()
 {
   if ((millis() - lastFlap) > (FLAP_DELAY))
   {
-    leftWing.write(0);
+    leftWing.write(FLAP_ANGLE);
     rightWing.write(0);
     Serial.print("LOW");
     lastFlap = millis();
   }
   else if ((millis() - lastFlap) > (0.5 * FLAP_DELAY))
   {
-    leftWing.write(FLAP_ANGLE);
+    leftWing.write(0);
     rightWing.write(FLAP_ANGLE);
     Serial.print("HIGH");
   }
