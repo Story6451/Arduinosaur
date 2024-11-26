@@ -3,8 +3,10 @@
 
 const int MOTOR_INTERFACE = 8;
 
+//stepper motor setups
 AccelStepper motor(MOTOR_INTERFACE, 9, 11, 10, 12);
 const int MAX_SPEED = 5000;
+
 //LDR variables
 #define LDR A2
 int LDRValue = 0;
@@ -30,7 +32,7 @@ const int ECHO = 8;
 long duration = 0;
 float distance = 0;
 
-//wing behaviours
+//Servo behaviours
 const int FLAP_DELAY = 1000;
 const int FLAP_ANGLE = 45;
 const int BITE_ANGLE = 20;
@@ -40,7 +42,6 @@ long lastFlap = 0;
 Servo leftWing;
 Servo rightWing;
 Servo jaw;
-
 const int LEFT_WING_PIN = A3;
 const int RIGHT_WING_PIN = A4;
 const int JAW_PIN = 13;
@@ -49,7 +50,6 @@ const int JAW_PIN = 13;
 void setup() 
 {
   Serial.begin(9600);
-
   motor.setMaxSpeed(MAX_SPEED);
 
   //7 segment pin initialisation
@@ -61,14 +61,17 @@ void setup()
   pinMode(F, OUTPUT);
   pinMode(G, OUTPUT);
 
-  //distance sensor
+  //distance sensor setup
   pinMode(TRIG, OUTPUT);
   pinMode(ECHO, INPUT);
 
+  //servo setup
   leftWing.attach(LEFT_WING_PIN);
   rightWing.attach(RIGHT_WING_PIN);
   jaw.attach(JAW_PIN);
   jaw.write(BITE_ANGLE);
+
+  //wake up animations
   Blink();
   Blink();
   
@@ -143,7 +146,7 @@ void EyesPassive()
 void Blink()
 {
   EyesOpen();
-  delay(300);
+  delay(150);
   EyesClosed();
   delay(300);
   EyesOpen();
@@ -195,22 +198,12 @@ void Stop()
   motor.runSpeed();
 }
 
-/*
-void Inspect()
-{
-  neck.write(45);
-  delay(2000);
-  neck.write(0);
-}
-*/
 void Bite()
 {
-  //neck.write(45);
   jaw.write(0);
   delay(500);
   jaw.write(BITE_ANGLE);
-  delay(500);
-  //neck.write(0);
+  delay(500); 
 }
 
 void loop() 
@@ -224,16 +217,17 @@ void loop()
   duration = pulseIn(ECHO, HIGH);
   distance = duration * 0.034 / 2;
 
+  //LDR reading 
   LDRValue = analogRead(LDR);
 
   //for debugging
-  
   Serial.print(lastFlap);
   Serial.print(" ");
   Serial.print(LDRValue);
   Serial.print(" ");
   Serial.println(distance);
   
+  //light based detections, actions etc
   if (LDRValue < 300)
   {
     if (distance > 30)
@@ -253,7 +247,7 @@ void loop()
     if (distance > 100)
     {
       long timer = millis();
-      if ((timer - lastBlink) > 3000)
+      if (((timer - lastBlink) > 3000) && (sleeping == false))
       {
         Blink();
         lastBlink = millis();
@@ -261,6 +255,7 @@ void loop()
     }
   }
 
+  //distance actions detections etc
   if ((distance <= 100) && (distance > 20))
   {
     MoveForward();
@@ -275,10 +270,6 @@ void loop()
     {
       Serial.print("Biting!!");
       Bite();
-    }
-    else
-    {
-      //Inspect();
     }
   }
   else
