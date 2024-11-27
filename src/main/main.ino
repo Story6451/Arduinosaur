@@ -234,7 +234,7 @@ void loop()
   //light based detections, actions etc
   if (LDRValue < 300)
   {
-    if (distance > 30)
+    if (distance > 100)
     {
       sleeping = true;
     }
@@ -260,15 +260,15 @@ void loop()
   }
 
   //distance actions detections etc
-  if ((distance <= 100) && (distance > 20))
+  if ((distance <= 100) && (distance > 25))
   {
     MoveForward();
   }
-  else if (distance <= 5)
+  else if (distance <= 20)
   {
     MoveBack();
   }
-  else if ((distance <= 10) && (distance > 5))
+  else if ((distance <= 25) && (distance > 20))
   {
     if (LDRValue < 300)
     {
