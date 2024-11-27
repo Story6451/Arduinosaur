@@ -146,6 +146,17 @@ void EyesPassive()
   digitalWrite(F, HIGH);
   digitalWrite(G, LOW);
 }
+
+void EyesCurious()
+{
+  digitalWrite(A, LOW);
+  digitalWrite(B, LOW);
+  digitalWrite(C, HIGH);
+  digitalWrite(D, HIGH);
+  digitalWrite(E, HIGH);
+  digitalWrite(F, LOW);
+  digitalWrite(G, HIGH);
+}
 //runs through a blinking routine for the 7 segment
 void Blink()
 {
@@ -191,8 +202,6 @@ void MoveForward()
   }
   motor.setSpeed(MAX_SPEED);
   motor.runSpeed();
-
-
 }
 
 //stops the stepper motor rotation
@@ -274,6 +283,10 @@ void loop()
     {
       Serial.print("Biting!!");
       Bite();
+    }
+    else if (sleeping == false)
+    {
+      EyesCurious();
     }
   }
   else
